@@ -1,5 +1,5 @@
 'use server';
-import fs from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 
 /**
@@ -8,13 +8,13 @@ import path from 'path';
  * @param {FormData} formData - Das FormData-Objekt mit der hochgeladenen Datei.
  * @returns {Promise<{message: string, pdfUrl?: string}>} - Ergebnis des Speichervorgangs.
  */
-export async function savePDF(formData: File) {
+export async function savePDF(formData: FormData) {
 	try {
 		// Annahme: formData hat ein Feld 'file' mit der hochgeladenen PDF
-		const file = formData.get('file');
+		const file = formData.get('file') as unknown as File;
 
-		if (!(file instanceof File) || file.size === 0) {
-			return { message: 'Keine Datei ausgewählt oder die Datei ist leer.' };
+		if (!(file instanceof File) || !file || file.size === 0) {
+			throw new Error('Keine Datei ausgewählt oder die Datei ist leer.');
 		}
 
 		// Speichern der Datei im 'public/uploads'-Verzeichnis
@@ -22,11 +22,12 @@ export async function savePDF(formData: File) {
 		const filePath = path.join(uploadsDir, file.name);
 
 		// Sicherstellen, dass das Verzeichnis existiert
-		await fs.mkdir(uploadsDir, { recursive: true });
+		await mkdir(uploadsDir, { recursive: true });
 
 		// Schreiben der Datei
-		const data = await file.arrayBuffer();
-		await fs.writeFile(filePath, Buffer.from(data));
+		const bytes = await file.arrayBuffer();
+		const buffer = Buffer.from(bytes);
+		await writeFile(filePath, buffer);
 
 		// Generieren der URL für den Zugriff auf die PDF
 		const pdfUrl = `/uploads/${file.name}`;
