@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
-const ServerPage = () => {
+const ClientPage = () => {
 	const [file, setFile] = useState<File>();
 
 	const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -26,6 +26,11 @@ const ServerPage = () => {
 			if (!response.ok) {
 				throw new Error(await response.text());
 			}
+
+			const { success, text } = await response.json();
+
+			console.log('success: ' + success);
+			console.log('text: ' + text);
 		} catch (error: any) {
 			console.error(error);
 		}
@@ -55,4 +60,4 @@ const ServerPage = () => {
 	);
 };
 
-export default ServerPage;
+export default ClientPage;

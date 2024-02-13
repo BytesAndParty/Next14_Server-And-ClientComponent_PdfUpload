@@ -26,19 +26,27 @@ const ServerPage = () => {
 
 		// Verwendung von pdf-parse, um den Text aus der PDF-Datei zu extrahieren
 		try {
-			pdf(buffer).then(function (data) {
-				console.log('data.numpages: ' + data.numpages);
-				console.log('data.info: ');
-				console.log(data.info);
-				console.log('data.text: ' + data.text);
-			});
-		} catch (error) {
-			console.error('Fehler beim Parsen der PDF:', error);
-			throw new Error('Fehler beim Parsen der PDF');
-		}
+			const data = await pdf(buffer);
+			console.log('data.numpages: ' + data.numpages);
+			console.log('data.info: ');
+			console.log(data.info);
+			console.log('data.text: ' + data.text);
 
-		const pdfUrl = `/uploads/${file.name}`;
-		return { message: 'Datei erfolgreich hochgeladen.', pdfUrl };
+			if (data.text.trim().length === 0) {
+				throw new Error('Die PDF enthält keinen lesbaren Text.');
+			}
+
+			const pdfUrl = `/uploads/${file.name}`;
+			return {
+				success: true,
+				message: 'Datei erfolgreich hochgeladen und Text extrahiert.',
+				pdfUrl,
+				text: data.text,
+			};
+		} catch (error: any) {
+			console.error('Fehler beim Parsen der PDF:', error);
+			throw new Error('Fehler beim Parsen der PDF: ' + error?.message);
+		}
 	}
 
 	return (
@@ -61,5 +69,3 @@ const ServerPage = () => {
 		</div>
 	);
 };
-
-export default ServerPage;

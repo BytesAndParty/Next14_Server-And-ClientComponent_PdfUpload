@@ -1,7 +1,7 @@
+import pdf from 'pdf-parse';
 import { mkdir, writeFile } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';
 import { join } from 'path';
-import { toast } from 'sonner';
 
 export async function POST(req: NextRequest) {
 	const data = await req.formData();
@@ -11,10 +11,9 @@ export async function POST(req: NextRequest) {
 		return NextResponse.json({ success: false });
 	}
 
-	//converting web pdf to bytes that node js can understand
+	// Converting web PDF to bytes that Node.js can understand
 	const bytes = await file.arrayBuffer();
 	const buffer = Buffer.from(bytes);
-	//every buffer is fine for nodejs
 
 	const uploadsDir = join(process.cwd(), 'public/uploads');
 	const path = join(uploadsDir, file.name);
@@ -24,7 +23,26 @@ export async function POST(req: NextRequest) {
 
 	await writeFile(path, buffer);
 
-	console.log(`File uploaded to ${path}`);
+	try {
+		const pdfData = await pdf(buffer);
+		console.log('data.numpages: ' + pdfData.numpages);
+		console.log('data.info: ', pdfData.info);
+		console.log('data.text: ', pdfData.text);
 
-	return NextResponse.json({ success: true });
+		console.log(`File uploaded to ${path}`);
+
+		if (pdfData.text.trim().length > 0) {
+			return NextResponse.json({ success: true, text: pdfData.text });
+		}
+		return NextResponse.json({
+			success: false,
+			message: 'Kein Text in der PDF gefunden.',
+		});
+	} catch (error) {
+		console.error('Fehler beim Parsen der PDF:', error);
+		return NextResponse.json({
+			success: false,
+			message: 'Fehler beim Parsen der PDF',
+		});
+	}
 }
