@@ -11,8 +11,11 @@ export default function Home() {
 				<Link className="border p-2" href="/server">
 					Server Component
 				</Link>
-				<Link className="border p-2" href="/pdfreader">
-					PDF-Reader Server
+				<Link className="border p-2" href="/pdfreader-client">
+					PDF-Reader Client
+				</Link>
+				<Link className="border p-2" href="/pdfreader-server">
+					!! PDF-Reader Server !!
 				</Link>
 			</div>
 		</div>

@@ -24,11 +24,9 @@ export async function POST(req: NextRequest) {
 	await writeFile(path, buffer);
 
 	try {
-		const pdfBuffer = buffer;
-
 		let extractedText = "";
 		await new Promise<void>((resolve, reject) => {
-			new PdfReader({}).parseBuffer(pdfBuffer, (err, item) => {
+			new PdfReader({}).parseBuffer(buffer, (err, item) => {
 				if (err) {
 					reject(err);
 				} else if (!item) {
