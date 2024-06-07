@@ -12,8 +12,6 @@ const ClientPage = () => {
 	} | null>(null);
 
 	const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-		event.preventDefault();
-
 		if (!file) {
 			console.error("No file selected or file is empty");
 			return;
